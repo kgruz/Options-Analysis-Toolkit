@@ -42,9 +42,11 @@ The project separates financial math functions from the user interface for clari
    ```bash
    git clone https://github.com/kgruz/Options-Analysis-Toolkit/
    cd my-project
+   ```
 2. Install Dependencies:
    ```bash
    pip install -r requirements.txt
+   ```
 3. Alternatively:
    - You can access this project at https://options-analysis-toolkit.streamlit.app/
    - You can also download the file from my GitHub repository.
@@ -55,6 +57,13 @@ The project separates financial math functions from the user interface for clari
 1. Run the Streamlit app:
     ```bash
     streamlit run main.py
+    ```
+2. Navigate to the provided URL.
+3. Try out the tools!
+
+---
+
+## Screenshots
 
 ---
 
