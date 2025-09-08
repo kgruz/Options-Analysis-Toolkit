@@ -873,11 +873,9 @@ elif tab == "Volatility Information":
     import plotly.graph_objects as go
     import streamlit as st
 
-    st.header("Implied Volatility Viewer (Prefetch) — Test_IV")
+    st.header("Implied Volatility Viewer (Prefetch)")
 
-    # =========================
-    # Helpers (Test_IV-prefixed)
-    # =========================
+    
     RATE_LIMIT_HINTS = ("Too Many Requests", "Rate limited", "HTTP Error 429")
     COVER_FRAC = 0.35   # keep strikes covered by at least 35% of expiries
     STRIKE_RES = 160    # strike grid resolution for surface
@@ -941,12 +939,10 @@ elif tab == "Volatility Information":
         out = np.divide(num, den, out=np.full_like(num, np.nan), where=den>0)
         return out
 
-    # =========================
-    # Sidebar (unique names)
-    # =========================
-    ticker = st.sidebar.text_input("Ticker (Test_IV)", value="AAPL").upper()
-    max_expiries = int(st.sidebar.number_input("Prefetch expiries (Test_IV)", 1, 60, 25))
-    refresh_btn = st.sidebar.button("Refresh cached data (Test_IV)")
+   
+    ticker = st.sidebar.text_input("Ticker", value="AAPL").upper()
+    max_expiries = int(st.sidebar.number_input("Prefetch expiries", 1, 60, 25))
+    refresh_btn = st.sidebar.button("Refresh cached data")
 
     if refresh_btn:
         try:
@@ -955,32 +951,28 @@ elif tab == "Volatility Information":
             st.cache_data.clear()
         st.experimental_rerun()
 
-    # =========================
-    # Prefetch & cache
-    # =========================
+    
     with st.spinner(f"Fetching up to {max_expiries} expiries for {ticker} ..."):
         try:
             expiries_list, chains_by_expiry, fetched_at = load_option_chains(
                 ticker, max_expiries
             )
         except Exception as e:
-            st.error(f"[Test_IV] Error prefetching: {e}")
+            st.error(f"Error prefetching: {e}")
             st.stop()
 
     if not expiries_list:
-        st.warning("[Test_IV] No options data available for this ticker.")
+        st.warning("No options data available for this ticker.")
         st.stop()
 
-    expiry_choice = st.sidebar.selectbox("Select Expiration (Test_IV)", expiries_list)
+    expiry_choice = st.sidebar.selectbox("Select Expiration", expiries_list)
 
     calls_df, puts_df = chains_by_expiry.get(expiry_choice, (None, None))
     if calls_df is None or puts_df is None or (calls_df.empty and puts_df.empty):
-        st.warning("[Test_IV] No data for this expiry.")
+        st.warning("No data for this expiry.")
         st.stop()
 
-    # =========================
-    # 2D smiles (explicit colors)
-    # =========================
+    
     calls_df = calls_df.dropna(subset=["strike", "impliedVolatility"])
     puts_df  = puts_df.dropna(subset=["strike", "impliedVolatility"])
 
@@ -992,12 +984,12 @@ elif tab == "Volatility Information":
             x=calls_df["strike"],
             y=calls_df["impliedVolatility"] * 100.0,
             mode="lines+markers",
-            name="Calls (Test_IV)",
+            name="Calls",
             line=dict(color="royalblue"),
             marker=dict(size=6, color="royalblue")
         ))
         fig_calls_2d.update_layout(
-            title=f"Call IV Smile — {expiry_choice} (Test_IV)",
+            title=f"Call IV Smile — {expiry_choice}",
             xaxis_title="Strike",
             yaxis_title="IV (%)",
             hovermode="x unified",
@@ -1011,12 +1003,12 @@ elif tab == "Volatility Information":
             x=puts_df["strike"],
             y=puts_df["impliedVolatility"] * 100.0,
             mode="lines+markers",
-            name="Puts (Test_IV)",
+            name="Puts",
             line=dict(color="darkorange"),
             marker=dict(size=6, color="darkorange")
         ))
         fig_puts_2d.update_layout(
-            title=f"Put IV Smile — {expiry_choice} (Test_IV)",
+            title=f"Put IV Smile — {expiry_choice}",
             xaxis_title="Strike",
             yaxis_title="IV (%)",
             hovermode="x unified",
@@ -1024,9 +1016,6 @@ elif tab == "Volatility Information":
         )
         st.plotly_chart(fig_puts_2d, use_container_width=True)
 
-    # =========================
-    # 3D curves (per selected expiry)
-    # =========================
     calls_sorted = calls_df.sort_values("strike")
     puts_sorted  = puts_df.sort_values("strike")
 
@@ -1046,7 +1035,7 @@ elif tab == "Volatility Information":
             mode="lines+markers",
             line=dict(color="royalblue", width=4),
             marker=dict(size=5, color=call_z, colorscale="Viridis", opacity=0.9),
-            name="Calls 3D (Test_IV)"
+            name="Calls 3D"
         ))
         fig_calls_3d.update_layout(
             title=f"Call 3D IV Curve — {expiry_choice}",
@@ -1071,7 +1060,7 @@ elif tab == "Volatility Information":
             mode="lines+markers",
             line=dict(color="darkorange", width=4),
             marker=dict(size=5, color=put_z, colorscale="Plasma", opacity=0.9),
-            name="Puts 3D (Test_IV)"
+            name="Puts 3D"
         ))
         fig_puts_3d.update_layout(
             title=f"Put 3D IV Curve — {expiry_choice}",
@@ -1089,11 +1078,6 @@ elif tab == "Volatility Information":
         )
         st.plotly_chart(fig_puts_3d, use_container_width=True)
 
-    st.caption("Test_IV uses cached multi-expiry chains. Switching expiries doesn’t re-download.")
-
-    # ==========================================================
-    # DUAL IV SURFACES — Calls vs Puts (Y = Maturity in years)
-    # ==========================================================
     st.subheader("IV Surfaces — Calls vs Puts (Maturity × Strike)")
 
     def build_surface_for_side(side: str):
@@ -1194,7 +1178,7 @@ elif tab == "Volatility Information":
     xP, TP, ZP = build_surface_for_side("put")
 
     if xC is None and xP is None:
-        st.info("[Test_IV] Not enough data to draw call or put surfaces.")
+        st.info("Not enough data to draw call or put surfaces.")
     else:
         # Determine a common Z range if both exist
         zmin = np.inf
@@ -1262,14 +1246,7 @@ elif tab == "Volatility Information":
                 )
                 st.plotly_chart(figP, use_container_width=True)
 
-    st.caption(
-        "Surfaces use calls-only and puts-only data separately. "
-        "In theory, call and put IVs match at the same (K, T); differences here mainly reflect quote noise and liquidity."
-    )
 
-    # ==============================================
-    # RAW IV SCATTER — Calls vs Puts (no interpolation)
-    # ==============================================
     st.subheader("IV Scatter — Maturity (years) × Strike (Calls vs Puts)")
 
     def build_scatter_side(side: str):
@@ -1309,7 +1286,7 @@ elif tab == "Volatility Information":
     sxP, sT_P, sZ_P = build_scatter_side("put")
 
     if sxC is None and sxP is None:
-        st.info("[Test_IV] Not enough data to draw scatter plots.")
+        st.info("Not enough data to draw scatter plots.")
     else:
         # Share a Z-range for easier visual comparison (include surfaces if present)
         zmin = np.inf
@@ -1383,6 +1360,6 @@ elif tab == "Volatility Information":
                 )
                 st.plotly_chart(fig_scP, use_container_width=True)
 
-    st.caption("Scatter shows raw, cleaned quotes (no interpolation); compare it to the smoothed surfaces above.")
+
 
 
