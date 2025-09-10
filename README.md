@@ -65,6 +65,14 @@ The project separates financial math functions from the user interface for clari
 
 ## Screenshots
 
+### Put and Call IV Surfaces
+![Put and Call IV Surfaces](images/IVSurfaces.png)
+
+### Put and Call Price/Greek Surfaces
+![Put and Call Delta Surfaces](images/3DSurfaces.png)
+
+### Strategy Payoff Charts
+![Butterfly Strategy Payoff Chart](images/ButterflyStrategy.png)
 ---
 
 ## Technology Stack
