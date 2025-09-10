@@ -41,7 +41,7 @@ The project separates financial math functions from the user interface for clari
 1. Clone the repository:
    ```bash
    git clone https://github.com/kgruz/Options-Analysis-Toolkit/
-   cd my-project
+   cd Options-Analysis-Toolkit
    ```
 2. Install Dependencies:
    ```bash
@@ -85,3 +85,8 @@ The project separates financial math functions from the user interface for clari
 - [yfinance](https://pypi.org/project/yfinance/) — options chain data
 - [JAX](https://jax.readthedocs.io/) — fast numerical computing and gradients
 
+## Contributing
+Pull requests are welcome! Please open an issue to discuss changes before submitting.
+
+## License
+MIT License — see [LICENSE](LICENSE) for details.
